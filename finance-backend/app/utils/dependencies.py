@@ -46,3 +46,31 @@ def get_current_user(
         pass
     
     return CurrentUser(user_id=x_user_id, role=role)
+
+
+def get_admin_user_role_only(
+    x_user_role: Optional[str] = Header(None)
+) -> CurrentUser:
+    """Get admin context from role header only (no user id required)."""
+    if x_user_role is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing user role header"
+        )
+
+    try:
+        role = RoleEnum(x_user_role.lower())
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid role: {x_user_role}"
+        )
+
+    if role != RoleEnum.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    # user_id is not needed for admin all-records access.
+    return CurrentUser(user_id=0, role=role)

@@ -4,7 +4,7 @@ from datetime import datetime, date
 from ..database import get_db
 from ..schemas.record import RecordCreate, RecordUpdate, RecordResponse
 from ..services.record_service import RecordService
-from ..utils.dependencies import get_current_user, CurrentUser
+from ..utils.dependencies import get_current_user, get_admin_user_role_only, CurrentUser
 from ..core.security import check_can_modify, check_admin
 
 router = APIRouter(prefix="/api/records", tags=["records"])
@@ -29,7 +29,7 @@ def list_all_records(
     category: str = Query(None, description="Filter by category"),
     start_date: date = Query(None, description="Filter by start date (YYYY-MM-DD)"),
     end_date: date = Query(None, description="Filter by end date (YYYY-MM-DD)"),
-    current_user: CurrentUser = Depends(get_current_user),
+    current_user: CurrentUser = Depends(get_admin_user_role_only),
     db: Session = Depends(get_db)
 ):
     """List all records across all users (Admin only)."""
