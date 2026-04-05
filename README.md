@@ -119,14 +119,28 @@ app/
 
 ```bash
 # From the project root directory
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+cd d:\Assignment
+python -m uvicorn finance-backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The API will be available at `http://localhost:8000`
+The API and Dashboard will be available at `http://localhost:8000`
 
-Access the interactive API documentation:
+### Accessing the Application
+
+**Dashboard UI** (Interactive Frontend):
+- **URL**: http://localhost:8000/dashboard
+- **Features**: 
+  - User selection by ID
+  - Real-time summary cards (income, expenses, balance)
+  - Recent transactions table
+  - Category breakdown
+  - Monthly trends
+
+**API Documentation**:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
+
+**API Base URL**: http://localhost:8000/api
 
 ## Authentication
 
@@ -151,6 +165,13 @@ curl -H "X-User-Id: 1" -H "X-User-Role: admin" http://localhost:8000/api/users
 ### Health Check
 - `GET /` - Root health check
 - `GET /health` - Health endpoint
+
+### Dashboard UI
+- `GET /dashboard` - Interactive finance dashboard (serves HTML)
+  - Real-time data visualization
+  - User filtering by ID
+  - Date range filtering
+  - Summary cards and analytics charts
 
 ### User Management
 
@@ -225,6 +246,18 @@ curl "http://localhost:8000/api/records/?record_type=income&category=Salary" \
   -H "X-User-Id: 2" \
   -H "X-User-Role: analyst"
 ```
+
+### Access Dashboard UI
+Simply open in your browser:
+```
+http://localhost:8000/dashboard
+```
+
+Features:
+- Enter User ID (e.g., 1, 2, 3, 4)
+- Select optional date range (YYYY-MM-DD format)
+- Click "Load Dashboard"
+- View real-time financial summary and analytics
 
 ## Key Features
 
