@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-content h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .user-info label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .user-info input,
+        .user-info select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .card-title {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .income {
+            border-left-color: #10b981;
+        }
+
+        .income .card-value {
+            color: #10b981;
+        }
+
+        .expense {
+            border-left-color: #ef4444;
+        }
+
+        .expense .card-value {
+            color: #ef4444;
+        }
+
+        .balance {
+            border-left-color: #667eea;
+        }
+
+        .balance .card-value {
+            color: #667eea;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .type-income {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .type-expense {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .amount {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .category-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .category-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .category-details {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .income-amount {
+            color: #10b981;
+        }
+
+        .expense-amount {
+            color: #ef4444;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <h1>💰 Finance Dashboard</h1>
+                <div class="user-info">
+                    <label>User ID:</label>
+                    <input type="number" id="userId" value="2" min="1">
+                    
+                    <button class="btn" onclick="loadDashboard()">Load Dashboard</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Messages -->
+        <div id="messageContainer"></div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards" id="summaryCards">
+            <div class="loading">Loading dashboard...</div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="section">
+            <div class="section-title">📊 Recent Transactions</div>
+            <div class="table-container">
+                <table id="transactionsTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #999;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="section">
+            <div class="section-title">📂 Category Breakdown</div>
+            <div class="category-grid" id="categoryGrid">
+                <div class="loading">Loading categories...</div>
+            </div>
+        </div>
+
+        <!-- Monthly Trends -->
+        <div class="section">
+            <div class="section-title">📈 Monthly Trends</div>
+            <div class="table-container">
+                <table id="trendsTable">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Income</th>
+                            <th>Expense</th>
+                            <th>Net</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #999;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        async function loadDashboard() {
+            const userId = document.getElementById('userId').value;
+            const userRole = 'analyst'; // Fixed role for data access
+
+            if (!userId) {
+                showError('Please enter a User ID');
+                return;
+            }
+
+            clearMessages();
+            clearAllData();
+            
+            console.log(`Loading dashboard for User ${userId}...`);
+
+            try {
+                const [summary, trans, cat, trends] = await Promise.all([
+                    loadSummary(userId, userRole),
+                    loadTransactions(userId, userRole),
+                    loadCategories(userId, userRole),
+                    loadTrends(userId, userRole)
+                ]);
+                showSuccess(`✅ Dashboard loaded for User ${userId}`);
+            } catch (error) {
+                showError(`❌ Error: ${error.message}`);
+                console.error('Full error:', error);
+            }
+        }
+
+        function clearAllData() {
+            document.getElementById('summaryCards').innerHTML = '<div class="loading">Loading...</div>';
+            document.getElementById('transactionsTable').innerHTML = '<thead><tr><th>Date</th><th>Category</th><th>Type</th><th>Amount</th><th>Notes</th></tr></thead><tbody><tr><td colspan="5">Loading...</td></tr></tbody>';
+            document.getElementById('categoryGrid').innerHTML = '<div class="loading">Loading categories...</div>';
+            document.getElementById('trendsTable').innerHTML = '<thead><tr><th>Month</th><th>Income</th><th>Expense</th><th>Net</th></tr></thead><tbody><tr><td colspan="4">Loading...</td></tr></tbody>';
+        }
+
+        async function loadSummary(userId, userRole) {
+            const url = `${API_BASE}/api/dashboard/summary?_t=${Date.now()}`;
+            const response = await fetch(url, {
+                headers: {
+                    'X-User-Id': userId,
+                    'X-User-Role': userRole
+                }
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Failed to load summary');
+            }
+
+            const data = await response.json();
+
+            const html = `
+                <div class="card income">
+                    <div class="card-title">Total Income</div>
+                    <div class="card-value">$${data.total_income.toFixed(2)}</div>
+                </div>
+                <div class="card expense">
+                    <div class="card-title">Total Expenses</div>
+                    <div class="card-value">$${data.total_expenses.toFixed(2)}</div>
+                </div>
+                <div class="card balance">
+                    <div class="card-title">Net Balance</div>
+                    <div class="card-value">$${data.net_balance.toFixed(2)}</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Transactions</div>
+                    <div class="card-value">${data.transaction_count}</div>
+                </div>
+            `;
+
+            document.getElementById('summaryCards').innerHTML = html;
+        }
+
+        async function loadTransactions(userId, userRole) {
+            const url = `${API_BASE}/api/records/?limit=20&_t=${Date.now()}`;
+            const response = await fetch(url, {
+                headers: {
+                    'X-User-Id': userId,
+                    'X-User-Role': userRole
+                }
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Failed to load transactions');
+            }
+
+            const data = await response.json();
+            const records = Array.isArray(data.value) ? data.value : data;
+
+            if (records.length === 0) {
+                document.getElementById('transactionsTable').innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                                No transactions found for this user
+                            </td>
+                        </tr>
+                    </tbody>
+                `;
+                return;
+            }
+
+            const tbody = records.map(record => `
+                <tr>
+                    <td>${new Date(record.date).toLocaleDateString()}</td>
+                    <td>${record.category}</td>
+                    <td><span class="type-${record.type}">${record.type.toUpperCase()}</span></td>
+                    <td class="amount">$${record.amount.toFixed(2)}</td>
+                    <td>${record.notes || '-'}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('transactionsTable').innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>${tbody}</tbody>
+            `;
+        }
+
+        async function loadCategories(userId, userRole) {
+            const url = `${API_BASE}/api/dashboard/categories?_t=${Date.now()}`;
+            const response = await fetch(url, {
+                headers: {
+                    'X-User-Id': userId,
+                    'X-User-Role': userRole
+                }
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Failed to load categories');
+            }
+
+            const data = await response.json();
+
+            if (Object.keys(data).length === 0) {
+                document.getElementById('categoryGrid').innerHTML = `
+                    <div class="empty-state">
+                        <p>No categories data for this user</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = Object.entries(data).map(([category, amounts]) => `
+                <div class="category-item">
+                    <div class="category-name">${category}</div>
+                    <div class="category-details">
+                        <div class="income-amount">Income: $${amounts.income.toFixed(2)}</div>
+                        <div class="expense-amount">Expense: $${amounts.expense.toFixed(2)}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('categoryGrid').innerHTML = html;
+        }
+
+        async function loadTrends(userId, userRole) {
+            const url = `${API_BASE}/api/dashboard/trends?months=6&_t=${Date.now()}`;
+            const response = await fetch(url, {
+                headers: {
+                    'X-User-Id': userId,
+                    'X-User-Role': userRole
+                }
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Failed to load trends');
+            }
+
+            const data = await response.json();
+
+            if (Object.keys(data).length === 0) {
+                document.getElementById('trendsTable').innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Income</th>
+                            <th>Expense</th>
+                            <th>Net</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 40px; color: #999;">
+                                No trend data available for this user
+                            </td>
+                        </tr>
+                    </tbody>
+                `;
+                return;
+            }
+
+            const tbody = Object.entries(data).map(([month, amounts]) => {
+                const net = amounts.income - amounts.expense;
+                return `
+                    <tr>
+                        <td>${month}</td>
+                        <td style="color: #10b981; font-weight: 600;">$${amounts.income.toFixed(2)}</td>
+                        <td style="color: #ef4444; font-weight: 600;">$${amounts.expense.toFixed(2)}</td>
+                        <td style="font-weight: 600; color: ${net >= 0 ? '#10b981' : '#ef4444'};">$${net.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('trendsTable').innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Income</th>
+                        <th>Expense</th>
+                        <th>Net</th>
+                    </tr>
+                </thead>
+                <tbody>${tbody}</tbody>
+            `;
+        }
+
+        function showError(message) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        function showSuccess(message) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="success">✅ ${message}</div>`;
+            setTimeout(() => { container.innerHTML = ''; }, 3000);
+        }
+
+        function clearMessages() {
+            document.getElementById('messageContainer').innerHTML = '';
+        }
+
+        // Load on page load
+        window.addEventListener('load', loadDashboard);
+    </script>
+</body>
+</html>
