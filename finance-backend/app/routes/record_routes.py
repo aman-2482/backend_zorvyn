@@ -5,7 +5,7 @@ from ..database import get_db
 from ..schemas.record import RecordCreate, RecordUpdate, RecordResponse
 from ..services.record_service import RecordService
 from ..utils.dependencies import get_current_user, CurrentUser
-from ..core.security import check_can_modify
+from ..core.security import check_can_modify, check_admin
 
 router = APIRouter(prefix="/api/records", tags=["records"])
 
@@ -19,6 +19,30 @@ def create_record(
     """Create a new financial record (Analyst and Admin only)"""
     check_can_modify(current_user.role)
     return RecordService.create_record(db, current_user.user_id, record_create)
+
+
+@router.get("/all", response_model=list[RecordResponse])
+def list_all_records(
+    skip: int = 0,
+    limit: int = 100,
+    record_type: str = Query(None, description="Filter by type (income/expense)"),
+    category: str = Query(None, description="Filter by category"),
+    start_date: date = Query(None, description="Filter by start date (YYYY-MM-DD)"),
+    end_date: date = Query(None, description="Filter by end date (YYYY-MM-DD)"),
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """List all records across all users (Admin only)."""
+    check_admin(current_user.role)
+    return RecordService.get_all_records(
+        db,
+        skip,
+        limit,
+        record_type,
+        category,
+        start_date,
+        end_date
+    )
 
 
 @router.get("/{record_id}", response_model=RecordResponse)

@@ -75,6 +75,41 @@ class RecordService:
         return query.order_by(desc(Record.date)).offset(skip).limit(limit).all()
 
     @staticmethod
+    def get_all_records(
+        db: Session,
+        skip: int = 0,
+        limit: int = 100,
+        record_type: str = None,
+        category: str = None,
+        start_date: date = None,
+        end_date: date = None
+    ) -> list[Record]:
+        """Get all records across users with optional filtering (admin use)."""
+        query = db.query(Record)
+
+        if record_type:
+            try:
+                query = query.filter(Record.type == RecordType(record_type))
+            except ValueError:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid record type: {record_type}"
+                )
+
+        if category:
+            query = query.filter(Record.category.ilike(f"%{category}%"))
+
+        if start_date:
+            start_datetime = datetime.combine(start_date, datetime.min.time())
+            query = query.filter(Record.date >= start_datetime)
+
+        if end_date:
+            end_datetime = datetime.combine(end_date, datetime.max.time())
+            query = query.filter(Record.date <= end_datetime)
+
+        return query.order_by(desc(Record.date)).offset(skip).limit(limit).all()
+
+    @staticmethod
     def update_record(db: Session, record_id: int, record_update: RecordUpdate) -> Record:
         """Update a record"""
         record = RecordService.get_record_by_id(db, record_id)
