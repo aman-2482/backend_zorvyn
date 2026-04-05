@@ -13,6 +13,12 @@ app = FastAPI(
     description="Finance Dashboard Backend API"
 )
 
+# Mount static files
+base_dir = os.path.dirname(os.path.dirname(__file__))
+static_dir = os.path.join(base_dir, "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 # Initialize database
 @app.on_event("startup")
 def startup_event():
@@ -45,7 +51,7 @@ def health_check():
 @app.get("/dashboard", response_class=HTMLResponse, tags=["ui"])
 def get_dashboard():
     """Serve the dashboard UI"""
-    dashboard_path = os.path.join(os.path.dirname(__file__), "..", "dashboard.html")
+    dashboard_path = os.path.join(base_dir, "static", "dashboard.html")
     try:
         with open(dashboard_path, "r", encoding="utf-8") as f:
             return f.read()
