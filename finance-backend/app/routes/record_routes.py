@@ -107,7 +107,7 @@ def update_record(
     return RecordService.update_record(db, record_id, record_update)
 
 
-@router.delete("/{record_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{record_id}", status_code=status.HTTP_200_OK)
 def delete_record(
     record_id: int,
     current_user: CurrentUser = Depends(get_current_user),
@@ -124,3 +124,4 @@ def delete_record(
         )
     
     RecordService.delete_record(db, record_id)
+    return {"message": "Record deleted successfully", "record_id": record_id}

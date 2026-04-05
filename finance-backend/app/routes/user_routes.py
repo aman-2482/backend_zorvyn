@@ -63,7 +63,7 @@ def update_user(
     return UserService.update_user(db, user_id, user_update)
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{user_id}", status_code=status.HTTP_200_OK)
 def delete_user(
     user_id: int,
     current_user: CurrentUser = Depends(get_current_user),
@@ -72,6 +72,7 @@ def delete_user(
     """Delete user (Admin only)"""
     check_admin(current_user.role)
     UserService.delete_user(db, user_id)
+    return {"message": "User deleted successfully", "user_id": user_id}
 
 
 @router.post("/{user_id}/deactivate", response_model=UserResponse)
